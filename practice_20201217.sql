@@ -5,7 +5,7 @@ desc employee;
 --출력되도록 하시오
 select emp_name, salary*12,
         (salary + salary *nvl(bonus,0))*12,
-        (salary + salary * nvl(bonus, 0)) * 12 - (salary * 0.03)
+        (salary + salary * nvl(bonus, 0)) * 12 - (salary * 0.03)*12
         --((salary+(salary*nvl(bonus,0)))*12)-(salary*0.03*12) as "실 수령액"
 from employee;
 
