@@ -1,7 +1,7 @@
 show user;
 
 --1. 학과테이블에서 계열별 정원의 평균을 조회(정원 내림차순 정렬)
-select category, trunc(avg(capacity))
+select category 학과, trunc(avg(capacity)) 평균
 from tb_department
 group by category
 order by 2 desc;
