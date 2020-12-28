@@ -12,7 +12,7 @@ from employee;
 --2. EMPLOYEE 테이블에서 이름, 입사일, 근무 일수(입사한지 몇일인가)를 
 --출력해보시오.
 select emp_name, hire_date, round(sysdate-hire_date)
---select emp_name as 이름, hire_date as 입사일, trunc(sysdate - hire_date) as "근무 일수" 
 from employee;
 
-
+select emp_name as 이름, hire_date as 입사일, trunc(sysdate - hire_date) as "근무 일수"
+from employee;
