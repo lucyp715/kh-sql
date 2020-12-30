@@ -39,9 +39,9 @@ from tb_professor;
 select student_no, student_name
 from tb_student
 where extract(year from entrance_date)
-              -(decode(substr(student_ssn,8,1),1,'1900',2,'1900','2000')
-              +substr(student_ssn,1,2)) > 19;
-              
+              -((decode(substr(student_ssn,8,1),1,'1900',2,'1900','2000')
+              +substr(student_ssn,1,2))) > 19;
+ 
 --6. 2020년 크리스마스는 무슨 요일인가?
 select to_char(to_date('20/12/25'), 'yyyy"년"mm"월"dd"일"day') 크리스마스
 from dual;
@@ -112,10 +112,20 @@ order by 1;
 --15. 학번이 A112113 인 김고운 학생의 년도, 학기 별 평점과 년도 별 누적 평점,
 --총평점을 구하는 SQL 문을 작성하시오.
 --(단, 평점은 소수점 1 자리까지만 반올림하여 표시한다.)
-select substr(term_no,1,4) 년도, substr(term_no,5,2) 학기,
-        round(avg(point),1) 평점,
-        sum(point) over(partition by substr(term_no,1,4)),
-        sum(point) over(partition by substr(term_no,5,2))
+select substr(term_no,1,4)년도,
+       substr(term_no,5,2)학기,
+       round(avg(point),1) 평점,
+       sum(point) over (partition by substr(term_no,1,4))년도별,
+       sum(point) over (partition by student_no) 총평점
+from tb_grade G
+where student_no = 'A112113'
+group by substr(term_no,5,2),substr(term_no,1,4),point,student_no
+order by 1;
+
+select decode(grouping(substr(term_no, 1, 4)), 0 , nvl(substr(term_no, 1, 4), '　'), '　') 연도,
+       decode(grouping(substr(term_no, 5, 2)), 0 , nvl(substr(term_no, 5, 2), '　'), '　') 학기,
+       round(avg(point), 1) 평점
 from tb_grade
 where student_no = 'A112113'
-group by (term_no,1,4), (term_no,5,2);
+group by rollup (substr(term_no, 1, 4), substr(term_no, 5, 2))
+order by 1,2;
