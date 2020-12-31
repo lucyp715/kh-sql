@@ -109,23 +109,40 @@ group by student_name
 having count(*) > 1
 order by 1;
 
---15. 학번이 A112113 인 김고운 학생의 년도, 학기 별 평점과 년도 별 누적 평점,
---총평점을 구하는 SQL 문을 작성하시오.
+--15. 학번이 A112113 인 김고운 학생의 년도, 학기 별 평점과 년도 별 누적 평점,총평점을 구하는 SQL 문을 작성하시오.
 --(단, 평점은 소수점 1 자리까지만 반올림하여 표시한다.)
+SELECT SUBSTR(TERM_NO, 1, 4) AS 년도,
+       SUBSTR(TERM_NO, 5, 2) AS 학기,
+          ROUND(AVG(POINT), 1) AS 평점
+FROM   TB_GRADE
+WHERE  STUDENT_NO = 'A112113'
+GROUP BY ROLLUP(SUBSTR(TERM_NO, 1, 4),SUBSTR(TERM_NO, 5, 2));
+--sum() over()
 select substr(term_no,1,4)년도,
        substr(term_no,5,2)학기,
-       round(avg(point),1) 평점,
-       sum(point) over (partition by substr(term_no,1,4))년도별,
+       round(avg(point),1) 학기별평점,
+       sum(point) over (partition by substr(term_no,1,4))년도별누적평점,
        sum(point) over (partition by student_no) 총평점
-from tb_grade G
+from tb_grade
 where student_no = 'A112113'
 group by substr(term_no,5,2),substr(term_no,1,4),point,student_no
 order by 1;
 
-select decode(grouping(substr(term_no, 1, 4)), 0 , nvl(substr(term_no, 1, 4), '　'), '　') 연도,
+--GROUPING을 통한 NULL처리
+select decode(grouping(substr(term_no, 1, 4)), 0 , nvl(substr(term_no, 1, 4), '　'), '　') 년도,
        decode(grouping(substr(term_no, 5, 2)), 0 , nvl(substr(term_no, 5, 2), '　'), '　') 학기,
        round(avg(point), 1) 평점
 from tb_grade
 where student_no = 'A112113'
 group by rollup (substr(term_no, 1, 4), substr(term_no, 5, 2))
 order by 1,2;
+
+​--CASE이용
+SELECT DECODE(GROUPING(SUBSTR(TERM_NO, 1, 4)),0,SUBSTR(TERM_NO, 1, 4),1,'총평점') AS 년도,
+        CASE WHEN GROUPING(SUBSTR(TERM_NO, 1, 4)) = 1 AND GROUPING(SUBSTR(TERM_NO, 5, 2))=1 THEN ' '
+              WHEN GROUPING(SUBSTR(TERM_NO, 5, 2)) = 1 THEN '연별누적평점'
+              ELSE SUBSTR(TERM_NO, 5, 2) END AS 구분,
+        ROUND(AVG(POINT), 1) AS 평점
+FROM   TB_GRADE
+WHERE  STUDENT_NO = 'A112113'
+GROUP BY ROLLUP(SUBSTR(TERM_NO, 1, 4),SUBSTR(TERM_NO, 5, 2));
