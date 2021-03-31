@@ -590,5 +590,5 @@ end;
 --테스트
 execute proc_upsert_job_copy('J8', '인턴');
 execute proc_upsert_job_copy('J8', '수습');
-
+  
 select * from job_copy;
